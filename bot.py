@@ -45,6 +45,13 @@ async def upload_image(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logger.info("Received /upload command.")
 
     message = update.message
+    user = update.effective_user
+
+    # Check if user is allowed
+    if user.id not in ALLOWED_MASTERS:
+        logger.warning(f"User {user.id} is not in allowed masters list.")
+        await message.reply_text("You are not allowed to upload images.")
+        return
 
     # Determine which message to use
     replied_msg = message.reply_to_message
@@ -57,12 +64,6 @@ async def upload_image(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         logger.warning("Command not used on a photo or reply to a photo.")
         await message.reply_text("Ты ебанутый чи да? Используй /upload цитируя месседж с картинкой, наркоман!")
-        return
-
-    author_id = source_message.from_user.id
-    if author_id not in ALLOWED_MASTERS:
-        logger.warning(f"User {author_id} is not in allowed masters list.")
-        await message.reply_text("Ты еще кто такой нахой? Сиди не выебывайся!")
         return
 
     if not source_message.photo:
@@ -101,7 +102,7 @@ async def upload_image(update: Update, context: ContextTypes.DEFAULT_TYPE):
         logger.info(f"Image successfully converted to WebP (size: {len(webp_data)} bytes).")
     except Exception as e:
         logger.error(f"Image conversion error: {e}", exc_info=True)
-        await message.reply_text("УПС, чет пошло не так!")
+        await message.reply_text("бип-боп, я робот долбайоп: не получилось законвертить!")
         return
 
     # Calculate MD5 of the converted image
@@ -125,7 +126,7 @@ async def upload_image(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         break
     except Exception as e:
         logger.error(f"Error checking existing files: {e}", exc_info=True)
-        await message.reply_text("УПС, чет пошло не так!")
+        await message.reply_text("бип-боп, я робот долбайоп: не получилось вычислить md5!")
         return
 
     if duplicate_found:
@@ -148,7 +149,7 @@ async def upload_image(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await message.reply_text(f"Я воль хер майор! Успешно закоммитил в зал славы: {filename}")
     except Exception as e:
         logger.error(f"Error saving file: {e}", exc_info=True)
-        await message.reply_text("УПС! Чет у меня не получается, давай сам :(")
+        await message.reply_text("бип-боп, я робот долбайоп: не получилось схоронить :(")
 
 # === Main function to run the bot ===
 def main():
